@@ -1,30 +1,35 @@
 NAME = libftprintf.a
 CC = cc
-FLAGS = -Wall -Wextra -Werror
+FLAGS = -Wall -Wextra -Werror -g
 
-SRC = $(shell find . -name "*.c" ! -name "*_bonus.c")
-BONUS_SRC = $(shell find . -name "*_bonus.c")
+SRC  = ft_printf.c handle_hexadecimal.c handle_pointer.c handle_int.c handle_char.c handle_str.c handle_unsigned.c
+OBJ_DIR = obj
+OBJ = $(SRC:%.c=$(OBJ_DIR)/%.o)
 
-OBJ = $(SRC:.c=.o)
-BONUS_OBJ = $(BONUS_SRC:.c=.o)
+TEST = test.c
+TEST_PATH = ./test
 
-.PHONY: all clean fclean re bonus
+all:		$(NAME)
 
-all: $(NAME)
+$(NAME):	$(OBJ_DIR) $(SRC) Makefile ft_printf.h
+		@$(MAKE) $(OBJ)
+		@ar rc	$(NAME) $(OBJ)
 
-$(NAME): $(OBJ) Makefile libftprintf.h
-	ar rc $(NAME) $(OBJ)
+$(OBJ_DIR):
+		@mkdir -p $(OBJ_DIR)
 
-bonus: $(NAME) $(BONUS_OBJ) Makefile libftprintf.h
-	ar rc $(NAME) $(BONUS_OBJ)
-
-%.o: %.c
+$(OBJ_DIR)/%.o: %.c Makefile ft_printf.h
 	$(CC) $(FLAGS) -c $< -o $@
 
+test:		$(OBJ_DIR) $(OBJ) $(TEST_PATH)/$(TEST)
+		$(CC) $(FLAGS) $(TEST_PATH)/$(TEST) $(OBJ) -o unit_test
+
 clean:
-	@rm -f $(OBJ) $(BONUS_OBJ)
+		@rm -rf $(OBJ_DIR)
 
-fclean: clean
-	@rm -f $(NAME)
+fclean:	clean
+		@rm -rf $(NAME) unit_test
 
-re: fclean all
+re:	fclean all
+
+.PHONY: all clean fclean re test
